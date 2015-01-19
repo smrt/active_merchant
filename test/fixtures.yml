@@ -162,6 +162,14 @@ elavon:
   password: PASSWORD
   user: USER (often the same as LOGIN)
 
+# replace credentials, no need to replace
+element_express:
+  account_id: '1000000'
+  account_token: ALONGTOKENSHOULDGOHERE
+  application_id: '1000'
+  application_name: DEMO
+  acceptor_id: '1000000'
+
 # login: merchant number
 # password: referrer url (for authorize authentication)
 epay:
