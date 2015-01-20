@@ -1,6 +1,9 @@
 require 'test_helper'
 
 class RemoteElementExpressTest < Test::Unit::TestCase
+  
+  @@order_id_base = 10000000800
+
   def setup
     @gateway = ElementExpressGateway.new(fixtures(:element_express))
 
@@ -14,18 +17,27 @@ class RemoteElementExpressTest < Test::Unit::TestCase
     @discover_keyed = credit_card('6011000990191250',{month:12,year:2015})
 
     @options = {
-      billing_address: address
+      billing_address: {
+        name: "Johan Baversjo",
+        address1: "1847 Belles St.",
+        city: "San Francisco",
+        state: "CA",
+        zip: "94129"
+      },
+      order_id: @@order_id_base
     }
+
+    @@order_id_base += 1
   end
 
   def test_dump_transcript
-    #skip("Transcript scrubbing for this gateway has been tested.")
+    skip("Transcript scrubbing for this gateway has been tested.")
 
     # This test will run a purchase transaction on your gateway
     # and dump a transcript of the HTTP conversation so that
     # you can use that transcript as a reference while
     # implementing your scrubbing logic
-    #dump_transcript_and_fail(@gateway, 20, @credit_card, @options)
+    dump_transcript_and_fail(@gateway, 20, @visa_keyed, @options)
   end
 
   #def test_transcript_scrubbing
@@ -62,7 +74,7 @@ class RemoteElementExpressTest < Test::Unit::TestCase
   end
 
 
-  def test_certification_card_sale
+  def test_1_certification_card_sale
     #skip("Not certifying")
     log_trans(@gateway.purchase(204, @visa_keyed, @options))
     log_trans(@gateway.purchase(206, @master_keyed, @options))
@@ -70,7 +82,7 @@ class RemoteElementExpressTest < Test::Unit::TestCase
     log_trans(@gateway.purchase(200, @discover_keyed, @options))
   end
 
-  def test_trans_credit
+  def test_2_trans_credit
     #skip("Not certifying")
     response = @gateway.purchase(320, @visa_keyed, @options)
 
@@ -80,19 +92,19 @@ class RemoteElementExpressTest < Test::Unit::TestCase
 
     transaction_id = response.params["transaction_id"]
 
-    response2 = @gateway.credit(320, transaction_id)
+    response2 = @gateway.credit(320, transaction_id, @options)
 
     assert_success response2
 
     log_trans(response2)
 
 
-    response3 = @gateway.credit(320, "INVALID_TRANS_ID")
+    response3 = @gateway.credit(320, "INVALID_TRANS_ID", @options)
 
     assert_failure response3
   end
 
-  def test_void
+  def test_3_void
     #skip("Not certifying")
 
     response = @gateway.purchase(509, @visa_keyed, @options)
@@ -111,11 +123,10 @@ class RemoteElementExpressTest < Test::Unit::TestCase
 
   end
 
-  def test_system_reversal
+  def test_4_system_reversal
     #skip("Not certifying")
-    order_id = "1921831"
     amount = 612
-    response = @gateway.purchase(amount, @visa_keyed, {order_id: order_id})
+    response = @gateway.purchase(amount, @visa_keyed, @options)
 
     assert_success response
 
@@ -123,10 +134,7 @@ class RemoteElementExpressTest < Test::Unit::TestCase
 
     transaction_id = response.params["transaction_id"]
 
-    response2 = @gateway.reversal(0, amount, @visa_keyed, {
-      transaction_id: transaction_id,
-      order_id: order_id
-    })
+    response2 = @gateway.reversal(0, amount, @visa_keyed, @options)
 
 
     assert_success response2
@@ -135,11 +143,10 @@ class RemoteElementExpressTest < Test::Unit::TestCase
 
   end
 
-  def test_full_reversal
+  def test_5_full_reversal
     #skip("Not certifying")
-    order_id = "1921831"
     amount = 613
-    response = @gateway.purchase(amount, @visa_keyed, {order_id: order_id})
+    response = @gateway.purchase(amount, @visa_keyed, @options)
 
     assert_success response
 
@@ -147,10 +154,7 @@ class RemoteElementExpressTest < Test::Unit::TestCase
 
     transaction_id = response.params["transaction_id"]
 
-    response2 = @gateway.reversal(1, amount, @visa_keyed, {
-      transaction_id: transaction_id,
-      order_id: order_id
-    })
+    response2 = @gateway.reversal(1, amount, nil, {transaction_id: transaction_id})
 
 
     assert_success response2

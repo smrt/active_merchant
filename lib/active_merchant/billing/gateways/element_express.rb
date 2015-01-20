@@ -41,17 +41,17 @@ module ActiveMerchant #:nodoc:
 
       DEFAULT_TERMINAL = "01"
 
-      APPLICATION_VERSION = "1.0"
+      APPLICATION_VERSION = "1.0.0"
 
 
       INPUT_MAGSTRIPE = "2"
       INPUT_MANUAL = "4"
 
-      CAPABILITY_CODE_MAGSTRIPE = "3"
-
       TERMINAL_ENV_LOCAL_ATTENDED = "2"
 
       PARTIAL_NO_SUPPORT = "0"
+
+      TICKET_MAX_LEN = 6
 
       def init_type(type)
 
@@ -103,20 +103,20 @@ module ActiveMerchant #:nodoc:
 
         x_term.add_element("CVVPresenceCode").text = 1 #not provided
 
-        x_term.add_element("TerminalCapabilityCode").text = CAPABILITY_CODE_MAGSTRIPE
+        x_term.add_element("TerminalCapabilityCode").text = 5 #key entered
 
         x_term.add_element("TerminalEnvironmentCode").text = TERMINAL_ENV_LOCAL_ATTENDED
 
         x_term.add_element("MotoECICode").text = 2 #single
 
-        x_term.add_element("TerminalType").text = 1 #MOTO
+        x_term.add_element("TerminalType").text = 3 #MOTO
 
       end
 
       def add_transaction(xml,money=nil, transaction_id = nil)
         x_trans = xml.add_element("Transaction")
 
-        x_trans.add_element("MarketCode").text = 7 #direct marketing
+        x_trans.add_element("MarketCode").text = 2 #direct marketing
 
         x_trans.add_element("PartialApprovedFlag").text = PARTIAL_NO_SUPPORT
 
@@ -137,7 +137,9 @@ module ActiveMerchant #:nodoc:
 
         add_terminal(xml)
 
-        add_transaction(xml, money, transaction_id)
+        x_trans = add_transaction(xml, money, transaction_id)
+
+        add_invoice(x_trans, options)
 
         commit(xml)
 
@@ -149,7 +151,9 @@ module ActiveMerchant #:nodoc:
 
         add_terminal(xml)
 
-        add_transaction(xml, nil, transaction_id)
+        x_trans = add_transaction(xml, nil, transaction_id)
+
+        add_invoice(x_trans, options)
 
         commit(xml)
 
@@ -159,9 +163,7 @@ module ActiveMerchant #:nodoc:
 
         xml = init_type("CreditCardSale")
 
-        input_code = INPUT_MANUAL
-
-        add_terminal(xml,input_code)
+        add_terminal(xml)
 
         x_trans = add_transaction(xml,money)
         
@@ -169,23 +171,16 @@ module ActiveMerchant #:nodoc:
 
         add_payment(xml, payment)
 
-
-        add_address(xml, payment, options)
+        add_address(xml, options)
 
         commit(xml)
       end
 
-      def reversal(reversal, money, payment, options={})
+      def reversal(reversal, money, payment=nil, options={})
 
         xml = init_type("CreditCardReversal")
 
-        input_code = INPUT_MANUAL
-
-        if options[:is_swipe]
-          input_code = INPUT_MAGSTRIPE
-        end
-
-        add_terminal(xml,input_code)
+        add_terminal(xml)
 
         x_trans = add_transaction(xml,money,options[:transaction_id])
 
@@ -193,9 +188,9 @@ module ActiveMerchant #:nodoc:
         
         add_invoice(x_trans, options)
 
-        add_payment(xml, payment)
-
-        add_address(xml, payment, options)
+        if payment
+          add_payment(xml, payment)
+        end
 
         commit(xml)
 
@@ -220,7 +215,7 @@ module ActiveMerchant #:nodoc:
 
       private
 
-      def add_customer_data(xml, options)
+      def add_address(xml, options)
 
         addr = options[:billing_address] || options[:address]
 
@@ -236,16 +231,22 @@ module ActiveMerchant #:nodoc:
           end
         end
 
-
-      end
-
-      def add_address(post, creditcard, options)
       end
 
       def add_invoice(x_trans, options)
         if options[:order_id]
-          x_trans.add_element("ReferenceNumber").text = options[:order_id]
-          x_trans.add_element("TicketNumber").text = options[:order_id]
+          order_id = options[:order_id].to_s
+          ticket_number = order_id
+
+          #truncate ticket number if longer than 6 digits (element PS requirement)
+          if ticket_number.length > TICKET_MAX_LEN
+
+            ticket_number = ticket_number[(ticket_number.length-TICKET_MAX_LEN)..ticket_number.length]
+
+          end
+
+          x_trans.add_element("ReferenceNumber").text = order_id
+          x_trans.add_element("TicketNumber").text = ticket_number
         end
       end
 
@@ -253,7 +254,6 @@ module ActiveMerchant #:nodoc:
         x_card = xml.add_element("Card")
 
         x_card.add_element("CardNumber").text = payment.number
-        
         
         year = payment.year.to_s.chars.last(2).join.to_s.rjust(2, '0')
         month = payment.month.to_s.rjust(2, '0')
