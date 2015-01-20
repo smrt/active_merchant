@@ -161,6 +161,7 @@ class RemoteElementExpressTest < Test::Unit::TestCase
 private
 
   def log_trans(response)
+    #puts ""
     #puts "======= TRANSACTION " + response.params["trans_type"] + " ======="
     #puts response.params["express_response_code"] + " / " + response.params["transaction_id"]
     #puts "==================================="

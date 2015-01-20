@@ -95,9 +95,9 @@ module ActiveMerchant #:nodoc:
         x_term = xml.add_element("Terminal")
 
         x_term.add_element("TerminalID").text = DEFAULT_TERMINAL
-        x_term.add_element("CardPresentCode").text = 2 #not present
+        x_term.add_element("CardPresentCode").text = 3 #not present
 
-        x_term.add_element("CardholderPresentCode").text = 2 #present
+        x_term.add_element("CardholderPresentCode").text = 3 # not present
 
         x_term.add_element("CardInputCode").text = input_code
 
@@ -137,7 +137,7 @@ module ActiveMerchant #:nodoc:
 
         add_terminal(xml)
 
-        x_trans = add_transaction(xml, money, transaction_id)
+        add_transaction(xml, money, transaction_id)
 
         commit(xml)
 
@@ -149,7 +149,7 @@ module ActiveMerchant #:nodoc:
 
         add_terminal(xml)
 
-        x_trans = add_transaction(xml, nil, transaction_id)
+        add_transaction(xml, nil, transaction_id)
 
         commit(xml)
 
@@ -160,10 +160,6 @@ module ActiveMerchant #:nodoc:
         xml = init_type("CreditCardSale")
 
         input_code = INPUT_MANUAL
-
-        if options[:is_swipe]
-          input_code = INPUT_MAGSTRIPE
-        end
 
         add_terminal(xml,input_code)
 
