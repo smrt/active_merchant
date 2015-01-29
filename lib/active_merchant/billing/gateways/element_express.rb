@@ -7,7 +7,7 @@ module ActiveMerchant #:nodoc:
   
     class ElementExpressGateway < Gateway
       self.test_url = 'https://certtransaction.elementexpress.com'
-      self.live_url = 'https://example.com/live'
+      self.live_url = 'https://transaction.elementexpress.com'
 
       self.supported_countries = ['US']
       self.default_currency = 'USD'
