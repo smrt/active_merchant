@@ -1,22 +1,11 @@
 #!/usr/bin/env ruby
 $:.unshift File.expand_path('../../lib', __FILE__)
 
-begin
-  require 'rubygems'
-  require 'bundler'
-  Bundler.setup
-rescue LoadError => e
-  puts "Error loading bundler (#{e.message}): \"gem install bundler\" for bundler support."
-end
+require 'bundler/setup'
 
 require 'test/unit'
+require 'mocha/test_unit'
 
-require 'mocha/version'
-if(Mocha::VERSION.split(".")[1].to_i < 12)
-  require 'mocha'
-else
-  require 'mocha/setup'
-end
 require 'yaml'
 require 'json'
 require 'active_merchant'
@@ -24,11 +13,7 @@ require 'comm_stub'
 
 require 'active_support/core_ext/integer/time'
 require 'active_support/core_ext/numeric/time'
-
-begin
-  require 'active_support/core_ext/time/acts_like'
-rescue LoadError
-end
+require 'active_support/core_ext/time/acts_like'
 
 ActiveMerchant::Billing::Base.mode = :test
 
@@ -47,7 +32,7 @@ end
 
 module ActiveMerchant
   module Assertions
-    AssertionClass = RUBY_VERSION > '1.9' ? MiniTest::Assertion : Test::Unit::AssertionFailedError
+    AssertionClass = defined?(Minitest) ? MiniTest::Assertion : Test::Unit::AssertionFailedError
 
     def assert_field(field, value)
       clean_backtrace do
@@ -120,6 +105,10 @@ module ActiveMerchant
     def assert_deprecation_warning(message=nil)
       ActiveMerchant.expects(:deprecated).with(message ? message : anything)
       yield
+    end
+
+    def refute(value, message = nil)
+      assert(!value, message)
     end
 
     def silence_deprecation_warnings
