@@ -85,6 +85,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [App55](https://www.app55.com/) - AU, BR, CA, CH, CL, CN, CO, CZ, DK, EU, GB, HK, HU, ID, IS, JP, KE, KR, MX, MY, NO, NZ, PH, PL, TH, TW, US, VN, ZA
 * [Authorize.Net CIM](http://www.authorize.net/) - US
 * [Authorize.Net](http://www.authorize.net/) - AD, AT, AU, BE, BG, CA, CH, CY, CZ, DE, DK, ES, FI, FR, GB, GB, GI, GR, HU, IE, IT, LI, LU, MC, MT, NL, NO, PL, PT, RO, SE, SI, SK, SM, TR, US, VA
+* [Axcess MS](http://www.axcessms.com/) - AD, AT, BE, BG, BR, CA, CH, CY, CZ, DE, DK, EE, ES, FI, FO, FR, GB, GI, GR, HR, HU, IE, IL, IM, IS, IT, LI, LT, LU, LV, MC, MT, MX, NL, NO, PL, PT, RO, RU, SE, SI, SK, TR, US, VA
 * [Balanced](https://www.balancedpayments.com/) - US
 * [Bank Frick](http://www.bankfrickacquiring.com/) - LI, US
 * [Banwire](http://www.banwire.com/) - MX
@@ -116,6 +117,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [Fat Zebra](https://www.fatzebra.com.au/) - AU
 * [Federated Canada](http://www.federatedcanada.com/) - CA
 * [Finansbank WebPOS](https://www.fbwebpos.com/) - US, TR
+* [Flo2Cash](http://www.flo2cash.co.nz/) - NZ
 * [1stPayGateway.Net](http://1stpaygateway.net/) - US
 * [FirstData Global Gateway e4](http://www.firstdata.com) - CA, US
 * [FirstGiving](http://www.firstgiving.com/) - US
@@ -156,6 +158,7 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [Orbital Paymentech](http://chasepaymentech.com/) - US, CA
 * [PagoFacil](http://www.pagofacil.net/) - MX
 * [PayGate PayXML](http://paygate.co.za/) - US, ZA
+* [PayHub](http://www.payhub.com/) - US
 * [PayJunction](http://www.payjunction.com/) - US
 * [PaySecure](http://www.commsecure.com.au/paysecure.shtml) - AU
 * [Paybox Direct](http://www.paybox.com/) - FR
@@ -202,11 +205,10 @@ The [ActiveMerchant Wiki](http://github.com/Shopify/active_merchant/wikis) conta
 * [USA ePay](http://www.usaepay.com/) - US
 * [Verifi](http://www.verifi.com/) - US
 * [ViaKLIX](http://viaklix.com) - US
-* [Vindicia](http://www.vindicia.com/) - US, CA, GB, AU, MX, BR, DE, KR, CN, HK
 * [WebPay](https://webpay.jp/) - JP
 * [WePay](https://www.wepay.com/) - US
 * [Wirecard](http://www.wirecard.com) - AD, CY, GI, IM, MT, RO, CH, AT, DK, GR, IT, MC, SM, TR, BE, EE, HU, LV, NL, SK, GB, BG, FI, IS, LI, NO, SI, VA, FR, IL, LT, PL, ES, CZ, DE, IE, LU, PT, SE
-* [Worldpay](http://www.worldpay.com/) - HK, US, GB, AU, AD, BE, CH, CY, CZ, DE, DK, ES, FI, FR, GI, GR, HU, IE, IL, IT, LI, LU, MC, MT, NL, NO, NZ, PL, PT, SE, SG, SI, SM, TR, UM, VA
+* [Worldpay Global](http://www.worldpay.com/) - HK, GB, AU, AD, BE, CH, CY, CZ, DE, DK, ES, FI, FR, GI, GR, HU, IE, IL, IT, LI, LU, MC, MT, NL, NO, NZ, PL, PT, SE, SG, SI, SM, TR, UM, VA
 * [Worldpay US](http://www.worldpay.com/us) - US
 
 ## API stability policy

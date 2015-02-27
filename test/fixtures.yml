@@ -25,6 +25,12 @@ authorize_net:
   login: 5KP3u95bQpv
   password: 4Ktq966gC55GAX7S
 
+axcessms:
+  channel: channel
+  sender: sender
+  login: login
+  password: password
+
 # Working credentials, no need to replace
 balanced:
   login: 'e1c5ad38d1c711e1b36c026ba7e239a9'
@@ -224,6 +230,16 @@ first_pay:
 firstdata_e4:
   login:
   password:
+
+flo2cash:
+  username: SOMECREDENTIAL
+  password: ANOTHERCREDENTIAL
+  account_id: ANOTHERCREDENTIAL
+
+flo2cash_simple:
+  username: SOMECREDENTIAL
+  password: ANOTHERCREDENTIAL
+  account_id: ANOTHERCREDENTIAL
 
 garanti:
   login: "PROVAUT"
@@ -439,6 +455,13 @@ pago_facil:
 pay_gate_xml:
   login: '10011021600'
   password: 'test'
+
+# Working credentials, no need to replace
+pay_hub:
+  orgid: '123456'
+  username: 'abc123DEF'
+  password: 'abc123DEF'
+  tid: '123'
 
 # Working credentials, no need to replace
 pay_junction:
@@ -808,10 +831,6 @@ viaklix:
   login: LOGIN
   password: PASSWORD
   user: USER
-
-vindicia:
-  login: LOGIN
-  password: PASSWORD
 
 webpay:
   login: "test_secret_eHn4TTgsGguBcW764a2KA8Yd"

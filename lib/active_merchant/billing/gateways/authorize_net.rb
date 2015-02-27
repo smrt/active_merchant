@@ -123,6 +123,16 @@ module ActiveMerchant #:nodoc:
         end
       end
 
+      def supports_scrubbing?
+        true
+      end
+
+      def scrub(transcript)
+        transcript.
+          gsub(%r((<cardNumber>).+(</cardNumber>)), '\1[FILTERED]\2').
+          gsub(%r((<cardCode>).+(</cardCode>)), '\1[FILTERED]\2')
+      end
+
       private
 
       def add_payment_source(xml, source)
@@ -267,7 +277,11 @@ module ActiveMerchant #:nodoc:
 
         unless shipping_address.blank?
           xml.shipTo do
-            first_name, last_name = names_from(payment_source, shipping_address, options)
+            (first_name, last_name) = if shipping_address[:name]
+              shipping_address[:name].split
+            else
+              [shipping_address[:first_name], shipping_address[:last_name]]
+            end
             xml.firstName(truncate(first_name, 50)) unless empty?(first_name)
             xml.lastName(truncate(last_name, 50)) unless empty?(last_name)
 
@@ -314,16 +328,20 @@ module ActiveMerchant #:nodoc:
 
         avs_result = AVSResult.new(code: response[:avs_result_code])
         cvv_result = CVVResult.new(response[:card_code])
-        Response.new(
-          success_from(response),
-          message_from(response, avs_result, cvv_result),
-          response,
-          authorization: authorization_from(response),
-          test: test?,
-          avs_result: avs_result,
-          cvv_result: cvv_result,
-          fraud_review: fraud_review?(response)
-        )
+        if using_live_gateway_in_test_mode?(response)
+          Response.new(false, "Using a live Authorize.net account in Test Mode is not permitted.")
+        else
+          Response.new(
+            success_from(response),
+            message_from(response, avs_result, cvv_result),
+            response,
+            authorization: authorization_from(response),
+            test: test?,
+            avs_result: avs_result,
+            cvv_result: cvv_result,
+            fraud_review: fraud_review?(response)
+          )
+        end
       end
 
       def post_data
@@ -386,6 +404,10 @@ module ActiveMerchant #:nodoc:
           (empty?(element.content) ? nil : element.content[-4..-1])
         end
 
+        response[:test_request] = if(element = doc.at_xpath("//testRequest"))
+          (empty?(element.content) ? nil : element.content)
+        end
+
         response
       end
 
@@ -424,6 +446,10 @@ module ActiveMerchant #:nodoc:
       def truncate(value, max_size)
         return nil unless value
         value.to_s[0, max_size]
+      end
+
+      def using_live_gateway_in_test_mode?(response)
+        !test? && response[:test_request] == "1"
       end
     end
   end

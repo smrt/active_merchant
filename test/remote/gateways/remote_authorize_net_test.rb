@@ -217,6 +217,7 @@ class RemoteAuthorizeNetTest < Test::Unit::TestCase
       response_code
       response_reason_code
       response_reason_text
+      test_request
       transaction_id
     ), response.params.keys.sort
 
@@ -276,6 +277,10 @@ class RemoteAuthorizeNetTest < Test::Unit::TestCase
     response = @gateway.purchase(@amount, @credit_card, @options)
     assert_success response
     assert response.authorization
+  end
+
+  def test_dump_transcript
+    # dump_transcript_and_fail(@gateway, @amount, @credit_card, @options)
   end
 
   private
