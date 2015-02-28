@@ -199,6 +199,9 @@ module ActiveMerchant #:nodoc:
           else
             xml.tag! 'AcctNo', credit_card.number
             xml.tag! 'ExpDate', expdate(credit_card)
+            if credit_card.name?
+              xml.tag! 'Name', credit_card.name
+            end
           end
         end
         xml.tag! 'CardType', CARD_CODES[credit_card.brand] if credit_card.brand
