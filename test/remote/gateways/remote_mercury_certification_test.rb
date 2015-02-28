@@ -4,128 +4,157 @@ require "support/mercury_helper"
 class RemoteMercuryCertificationTest < Test::Unit::TestCase
   include MercuryHelper
 
-  # Tokenization
-
-  def test_sale_and_reversal
-    close_batch(tokenization_gateway)
-
-    sale = tokenization_gateway.purchase(101, visa, options("1"))
-    assert_success sale
-    assert_equal "AP", sale.params["text_response"]
-
-    reversal = tokenization_gateway.void(sale.authorization, options.merge(:try_reversal => true))
-    assert_success reversal
-    assert_equal "REVERSED", reversal.params["text_response"]
+  def test_case1_1
+    charge(card5,101)
   end
 
-  def test_sale_and_void
-    close_batch(tokenization_gateway)
+  def test_case1_2
+    charge(card5,102,options('1'),gateway_5)
+  end
 
-    sale = tokenization_gateway.purchase(103, visa, options("1"))
+  #def test_case1_3
+  #  charge(card5,103,gateway_7)
+  #end
+
+  def test_case2_x
+    charge(card4,104)
+    charge(card3,105)
+    charge(card2,106)
+    charge(card5,107)
+  end
+
+
+  def test_case3_x
+    sale = charge(card5,107,options('1'))
+    capture = capture(107,card5,sale,options('1'))
+
+    sale = charge(card5,107,options('2'))
+    capture = capture(107,card5,sale,options('2'))
+
+    sale = charge(card5,107,options('2'))
+    capture = capture(107,card5,sale,options('test_case1_2'))
+
     assert_success sale
     assert_equal "AP", sale.params["text_response"]
 
-    void = tokenization_gateway.void(sale.authorization, options)
+  end
+
+
+  def test_case4_1
+    sale = charge(card4,108,options('1', billing_address: {
+      address1: "1661 E. Camelback",
+      zip: '85016'
+    }))
+
+    void(card4,sale,options)
+  end
+
+  def test_case4_2
+    sale = charge(card3,109,options('1', billing_address: {
+      address1: "2500 Lake Cook Road",
+      zip: '60015'
+    }))
+
+    void(card3,sale,options)
+  end
+
+
+  def test_case4_3
+    sale = charge(card3,110,options('1', billing_address: {
+      address1: "4 Corporate SQ",
+      zip: '30329'
+    }))
+
+    void(card3,sale,options)
+
+  end
+
+
+  private
+
+  def void(card,sale,options)
+    options[:credit_card] = card
+    void = gateway_1.void(sale.authorization, options)
+    
     assert_success void
-    assert_equal "AP", void.params["text_response"]
+    assert_equal "REVERSED", void.params["text_response"]
   end
 
-  def test_preauth_capture_and_reversal
-    close_batch(tokenization_gateway)
 
-    cc = credit_card(
+  def charge(card, amount, options=nil, gateway=nil)
+    gateway ||= gateway_1
+    options ||= options('1')
+
+    close_batch(gateway)
+
+    sale = gateway.purchase(amount, card, options)
+    assert_success sale
+    assert_equal "AP", sale.params["text_response"]
+    sale
+  end
+
+  def capture(amount,card,sale,options)
+    options[:credit_card] = card
+    gateway_1.capture(amount, sale.authorization, options)
+  end
+
+  def gateway_1()
+    @gateway_1 ||= MercuryGateway.new(
+      :login => "003503902913105",
+      :password => "xyz",
+      :tokenization => false,
+      :merchant => 'test'
+    )
+  end
+
+  def gateway_5()
+      @gateway_5 ||= MercuryGateway.new(
+        :login => "023358150511666",
+        :password => "xyz",
+        :tokenization => true,
+        :merchant => 'test'
+      )
+  end
+  
+  def card4 
+    @card4 ||= credit_card(
+      "373953244361001",
+      :brand => "amex",
+      :month => "12",
+      :year => "15",
+      :verification_value => "1234"
+    )
+
+  end
+
+  def card5
+    @card5 ||= credit_card(
       "4005550000000480",
       :brand => "visa",
       :month => "12",
       :year => "15",
       :verification_value => "123"
     )
-
-    preauth = tokenization_gateway.authorize(106, cc, options("1"))
-    assert_success preauth
-    assert_equal "AP", preauth.params["text_response"]
-
-    capture = tokenization_gateway.capture(106, preauth.authorization, options)
-    assert_success capture
-    assert_equal "AP", capture.params["text_response"]
-
-    reversal = tokenization_gateway.void(capture.authorization, options.merge(:try_reversal => true))
-    assert_success reversal
-    assert_equal "REVERSED", reversal.params["text_response"]
   end
 
-  def test_return
-    close_batch(tokenization_gateway)
-
-    credit = tokenization_gateway.credit(109, visa, options("1"))
-    assert_success credit
-    assert_equal "AP", credit.params["text_response"]
-  end
-
-  def test_preauth_and_reversal
-    close_batch(tokenization_gateway)
-
-    preauth = tokenization_gateway.authorize(113, disc, options("1"))
-    assert_success preauth
-    assert_equal "AP", preauth.params["text_response"]
-
-    reversal = tokenization_gateway.void(preauth.authorization, options.merge(:try_reversal => true))
-    assert_success reversal
-    assert_equal "REVERSED", reversal.params["text_response"]
-  end
-
-  def test_preauth_capture_and_reversal
-    close_batch(tokenization_gateway)
-
-    preauth = tokenization_gateway.authorize(106, visa, options("1"))
-    assert_success preauth
-    assert_equal "AP", preauth.params["text_response"]
-
-    capture = tokenization_gateway.capture(206, preauth.authorization, options)
-    assert_success capture
-    assert_equal "AP", capture.params["text_response"]
-
-    void = tokenization_gateway.void(capture.authorization, options)
-    assert_success void
-    assert_equal "AP", void.params["text_response"]
-  end
-
-  private
-
-  def tokenization_gateway
-    @tokenization_gateway ||= MercuryGateway.new(
-      :login => "023358150511666",
-      :password => "xyz"
-    )
-  end
-
-  def visa
-    @visa ||= credit_card(
-      "4003000123456781",
-      :brand => "visa",
+  def card2
+    @mc ||= credit_card(
+      "5499990123456781",
+      :brand => "master",
       :month => "12",
       :year => "15",
       :verification_value => "123"
     )
   end
 
-  def disc
+
+  def card3
     @disc ||= credit_card(
       "6011000997235373",
       :brand => "discover",
       :month => "12",
       :year => "15",
       :verification_value => "362"
-    )
-  end
-
-  def mc
-    @mc ||= credit_card(
-      "5439750001500248",
-      :brand => "master",
-      :month => "12",
-      :year => "15",
-      :verification_value => "123"
     )
   end
 
