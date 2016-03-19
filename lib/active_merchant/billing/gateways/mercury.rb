@@ -195,23 +195,27 @@ module ActiveMerchant #:nodoc:
       def add_credit_card(xml, credit_card, action)
         xml.tag! 'Account' do
           if credit_card.track_data.present?
+
+            track = credit_card.track_data.to_s
+
+
             # Track 1 has a start sentinel (STX) of '%' and track 2 is ';'
             # Track 1 and 2 have identical end sentinels (ETX) of '?'
             # Tracks may or may not have checksum (LRC) after the ETX
             # If the track has no STX or is corrupt, we send it as track 1, to let Mercury
             #handle with the validation error as it sees fit.
-            # Track 2 requires having the STX and ETX stripped. Track 1 does not.
-            # Max-length track 1s require having the STX and ETX stripped. Max is 79 bytes including LRC.
+            # Track 2 requires having the STX and ETX stripped. Track 1 does not, however it's recommended and
+            # required for Max-length track1s.
+            # Max is 79 bytes including LRC.
             is_track_2 = credit_card.track_data[0] == ';'
-            etx_index = credit_card.track_data.rindex('?') || credit_card.track_data.length
-            is_max_track1 = etx_index >= 77
+            track.sub!(/\?$/, '') #remove ETX if present
 
             if is_track_2
-              xml.tag! 'Track2', credit_card.track_data[1...etx_index]
-            elsif is_max_track1
-              xml.tag! 'Track1', credit_card.track_data[1...etx_index]
+              track.sub!(/^;/, '') #remove track 2 STX if present
+              xml.tag! 'Track2', track
             else
-              xml.tag! 'Track1', credit_card.track_data
+              track.sub!(/^%/, '') #remove track 1 STX if present
+              xml.tag! 'Track1', track
             end
           else
             xml.tag! 'AcctNo', credit_card.number

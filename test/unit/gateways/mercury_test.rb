@@ -65,11 +65,12 @@ class MercuryTest < Test::Unit::TestCase
 
   def test_card_present_with_track_1_data
     track_data = "%B4003000123456781^LONGSEN/L. ^15121200000000000000123?"
+    stripped_track_data = "B4003000123456781^LONGSEN/L. ^15121200000000000000123"
     @credit_card.track_data = track_data
     response = stub_comms do
       @gateway.purchase(@amount, @credit_card, @options)
     end.check_request do |endpoint, data, headers|
-      assert_match(/<Track1>#{Regexp.escape(track_data)}<\/Track1>/, data)
+      assert_match(/<Track1>#{Regexp.escape(stripped_track_data)}<\/Track1>/, data)
     end.respond_with(successful_purchase_response)
 
     assert_instance_of Response, response
